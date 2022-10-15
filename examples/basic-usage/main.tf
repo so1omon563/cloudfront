@@ -1,6 +1,14 @@
-variable "name" {}
+variable "name" {
+  default = "example-cf"
+}
 
-variable "tags" {}
+variable "tags" {
+  default = {
+    environment = "dev"
+    terraform   = "true"
+    kitchen     = "true"
+  }
+}
 
 provider "aws" {
   region = "us-east-1"
@@ -65,7 +73,8 @@ output "s3" {
 module "cloudfront" {
   #tfsec:ignore:aws-cloudfront-enable-logging - Logging not enabled for this example.
   #checkov:skip=CKV2_AWS_174:"Verify CloudFront Distribution Viewer Certificate is using TLS v1.2" Module uses 1.2 by default.
-  source = "../../.." # Verify this path is correct
+
+  source = "../.." # Verify this path is correct
 
   name = var.name
   tags = {

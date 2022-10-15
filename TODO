@@ -1,1 +1,4 @@
-# TODO - Add additional tests for submodules.
+# TODO - Add variable validation in lists of objects and maps - easier in TF 0.14 and newer with the alltrue() function
+# TODO - Add support for ordered_cache_behavior. Should be relatively simple using locals to determine which cache type to use based on supplied values.
+
+# TODO - Add lambda_function_association and function_association variables and add support into the cache behavior for them.
