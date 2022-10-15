@@ -12,8 +12,7 @@ Note that if using an s3 based origin, that origin will need to have an [Origin 
 
 This module will not create one. This is by design, as it is preferred that the OAI and associated bucket policies be managed directly with the bucket.
 
-For that reason, it is highly suggested that you use the [generic-s3](https://gilligan.pearsondev.com/tf-modules/s3/-/tree/master/generic-s3) module to create and manage a bucket with an OAI.
-
+For that reason, it is highly suggested that you use the [s3](https://registry.terraform.io/modules/so1omon563/s3/aws/latest) module to create and manage a bucket with an OAI.
 
 Roadmap includes adding submodules to handle additional CloudFront related items.
 

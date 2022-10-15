@@ -21,7 +21,7 @@ No requirements.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_cloudfront"></a> [cloudfront](#module\_cloudfront) | ../.. | n/a |
+| <a name="module_cloudfront"></a> [cloudfront](#module\_cloudfront) | so1omon563/cloudfront/aws | 1.0.0 |
 | <a name="module_s3"></a> [s3](#module\_s3) | so1omon563/s3/aws | 1.2.0 |
 
 ## Resources
