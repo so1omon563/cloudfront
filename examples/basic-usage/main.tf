@@ -74,7 +74,8 @@ module "cloudfront" {
   #tfsec:ignore:aws-cloudfront-enable-logging - Logging not enabled for this example.
   #checkov:skip=CKV2_AWS_174:"Verify CloudFront Distribution Viewer Certificate is using TLS v1.2" Module uses 1.2 by default.
 
-  source = "../.." # Verify this path is correct
+  source  = "so1omon563/cloudfront/aws"
+  version = "1.0.0"
 
   name = var.name
   tags = {
