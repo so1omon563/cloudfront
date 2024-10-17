@@ -1,3 +1,13 @@
+terraform {
+  required_version = ">= 0.14"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 3.38.0, < 5.1.0"
+    }
+  }
+}
+
 variable "name" {
   default = "example-cf"
 }
@@ -58,7 +68,7 @@ resource "aws_acm_certificate" "dummy" {
 # Create S3 bucket with OAI for CloudFront
 module "s3" {
   source  = "so1omon563/s3/aws"
-  version = "1.2.0"
+  version = "4.1.0"
 
   name = var.name
   tags = {
@@ -70,12 +80,24 @@ module "s3" {
 output "s3" {
   value = module.s3
 }
+
+# Get ID for Cache Policy
+data "aws_cloudfront_cache_policy" "cache_policy_id" {
+  name = "UseOriginCacheControlHeaders"
+}
+
+# Get ID for Origin Policy
+data "aws_cloudfront_origin_request_policy" "origin_policy_id" {
+  name = "Managed-AllViewer"
+}
+
 module "cloudfront" {
   #tfsec:ignore:aws-cloudfront-enable-logging - Logging not enabled for this example.
   #checkov:skip=CKV2_AWS_174:"Verify CloudFront Distribution Viewer Certificate is using TLS v1.2" Module uses 1.2 by default.
 
-  source  = "so1omon563/cloudfront/aws"
-  version = "1.0.0"
+  source = "../../"
+  # source  = "so1omon563/cloudfront/aws"
+  # version = "1.0.0"
 
   name = var.name
   tags = {
@@ -95,9 +117,11 @@ module "cloudfront" {
     acm_certificate_arn = aws_acm_certificate.dummy.arn
   }
   default_cache_behavior = {
-    allowed_methods  = ["GET", "HEAD"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = module.s3.oai_module.enabled.oai.comment
+    allowed_methods          = ["GET", "HEAD"]
+    cached_methods           = ["GET", "HEAD"]
+    target_origin_id         = module.s3.oai_module.enabled.oai.comment
+    cache_policy_id          = data.aws_cloudfront_cache_policy.cache_policy_id.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.origin_policy_id.id
   }
 }
 

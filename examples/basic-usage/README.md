@@ -11,6 +11,16 @@ Example shows using Default Tags in the provider as well as passing additional t
 ## Examples
 
 ```hcl
+terraform {
+  required_version = ">= 0.14"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 3.38.0, < 5.1.0"
+    }
+  }
+}
+
 variable "name" {
   default = "example-cf"
 }
@@ -71,7 +81,7 @@ resource "aws_acm_certificate" "dummy" {
 # Create S3 bucket with OAI for CloudFront
 module "s3" {
   source  = "so1omon563/s3/aws"
-  version = "1.2.0"
+  version = "4.1.0"
 
   name = var.name
   tags = {
@@ -83,12 +93,24 @@ module "s3" {
 output "s3" {
   value = module.s3
 }
+
+# Get ID for Cache Policy
+data "aws_cloudfront_cache_policy" "cache_policy_id" {
+  name = "UseOriginCacheControlHeaders"
+}
+
+# Get ID for Origin Policy
+data "aws_cloudfront_origin_request_policy" "origin_policy_id" {
+  name = "Managed-AllViewer"
+}
+
 module "cloudfront" {
   #tfsec:ignore:aws-cloudfront-enable-logging - Logging not enabled for this example.
   #checkov:skip=CKV2_AWS_174:"Verify CloudFront Distribution Viewer Certificate is using TLS v1.2" Module uses 1.2 by default.
 
-  source  = "so1omon563/cloudfront/aws"
-  version = "1.0.0"
+  source = "../../"
+  # source  = "so1omon563/cloudfront/aws"
+  # version = "1.0.0"
 
   name = var.name
   tags = {
@@ -108,9 +130,11 @@ module "cloudfront" {
     acm_certificate_arn = aws_acm_certificate.dummy.arn
   }
   default_cache_behavior = {
-    allowed_methods  = ["GET", "HEAD"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = module.s3.oai_module.enabled.oai.comment
+    allowed_methods          = ["GET", "HEAD"]
+    cached_methods           = ["GET", "HEAD"]
+    target_origin_id         = module.s3.oai_module.enabled.oai.comment
+    cache_policy_id          = data.aws_cloudfront_cache_policy.cache_policy_id.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.origin_policy_id.id
   }
 }
 
@@ -119,21 +143,24 @@ output "cloudfront" { value = module.cloudfront }
 
 ## Requirements
 
-No requirements.
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.14 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.38.0, < 5.1.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.35.0 |
-| <a name="provider_tls"></a> [tls](#provider\_tls) | 4.0.3 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.0.1 |
+| <a name="provider_tls"></a> [tls](#provider\_tls) | 4.0.6 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_cloudfront"></a> [cloudfront](#module\_cloudfront) | so1omon563/cloudfront/aws | 1.0.0 |
-| <a name="module_s3"></a> [s3](#module\_s3) | so1omon563/s3/aws | 1.2.0 |
+| <a name="module_cloudfront"></a> [cloudfront](#module\_cloudfront) | ../../ | n/a |
+| <a name="module_s3"></a> [s3](#module\_s3) | so1omon563/s3/aws | 4.1.0 |
 
 ## Resources
 
@@ -142,6 +169,8 @@ No requirements.
 | [aws_acm_certificate.dummy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate) | resource |
 | [tls_private_key.dummy](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) | resource |
 | [tls_self_signed_cert.dummy](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/self_signed_cert) | resource |
+| [aws_cloudfront_cache_policy.cache_policy_id](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/cloudfront_cache_policy) | data source |
+| [aws_cloudfront_origin_request_policy.origin_policy_id](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/cloudfront_origin_request_policy) | data source |
 
 ## Inputs
 

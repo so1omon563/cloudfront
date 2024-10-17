@@ -4,12 +4,13 @@ locals {
   distribution_name = var.distribution_name_override != null ? var.distribution_name_override : var.distribution_prefix == null ? format("%s", var.name) : format("%s-%s", var.name, var.distribution_prefix)
 
   # for_each locals
-  custom_error_response = var.custom_error_response[0].error_code != null ? var.custom_error_response : []
-  custom_header         = var.custom_header[0].name != null ? var.custom_header : []
-  custom_origin_config  = var.custom_origin_config[0].http_port != null ? var.custom_origin_config : []
-  logging_config        = var.logging_config[0].bucket != null ? var.logging_config : []
-  origin_shield         = var.origin_shield[0].enabled != null ? var.origin_shield : []
-  s3_origin_config      = var.s3_origin_config[0].origin_access_identity != null ? var.s3_origin_config : []
+  custom_error_response      = var.custom_error_response[0].error_code != null ? var.custom_error_response : []
+  custom_header              = var.custom_header[0].name != null ? var.custom_header : []
+  custom_origin_config       = var.custom_origin_config[0].http_port != null ? var.custom_origin_config : []
+  logging_config             = var.logging_config[0].bucket != null ? var.logging_config : []
+  origin_shield              = var.origin_shield[0].enabled != null ? var.origin_shield : []
+  s3_origin_config           = var.s3_origin_config[0].origin_access_identity != null ? var.s3_origin_config : []
+  forwarded_values_condition = local.default_cache_behavior.cache_policy_id == null ? ["forward"] : []
 
   # defaults locals for merging
   default_cache_behavior_defaults = {
