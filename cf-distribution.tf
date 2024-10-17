@@ -35,14 +35,17 @@ resource "aws_cloudfront_distribution" "distribution" {
     viewer_protocol_policy     = local.default_cache_behavior.viewer_protocol_policy
 
 
-    forwarded_values {
-      cookies {
-        forward           = local.forwarded_values_cookies.forward != null ? local.forwarded_values_cookies.forward : null
-        whitelisted_names = local.forwarded_values_cookies.whitelisted_names != null ? local.forwarded_values_cookies.whitelisted_names : null
+    dynamic "forwarded_values" {
+      for_each = local.forwarded_values_condition
+      content {
+        cookies {
+          forward           = local.forwarded_values_cookies.forward != null ? local.forwarded_values_cookies.forward : null
+          whitelisted_names = local.forwarded_values_cookies.whitelisted_names != null ? local.forwarded_values_cookies.whitelisted_names : null
+        }
+        headers                 = local.forwarded_values.headers != null ? local.forwarded_values.headers : null
+        query_string            = local.forwarded_values.query_string != null ? tobool(local.forwarded_values.query_string) : null
+        query_string_cache_keys = local.forwarded_values.query_string_cache_keys != null ? local.forwarded_values.query_string_cache_keys : null
       }
-      headers                 = local.forwarded_values.headers != null ? local.forwarded_values.headers : null
-      query_string            = local.forwarded_values.query_string != null ? tobool(local.forwarded_values.query_string) : null
-      query_string_cache_keys = local.forwarded_values.query_string_cache_keys != null ? local.forwarded_values.query_string_cache_keys : null
     }
   }
 
